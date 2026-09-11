@@ -139,32 +139,70 @@ char* itoa(int num, char* str, int base) {
 }
 
 /**
+ * Kernel Panic Engine
+ * Forces the CPU to freeze and locks down the monitor screen to output diagnostics.
+ */
+void kernel_panic(char *expression, char *file, int line) {
+    // 1. Give yourself a fresh slate
+    // clear_screen();
+
+    // 2. Format a clear error interface
+    print_string("!!! KERNEL PANIC: ASSERTION FAILED !!!\n");
+    print_string("--------------------------------------\n");
+    
+    print_string("Condition broken: ");
+    print_string(expression);
+    print_string("\n");
+
+    print_string("Location:         ");
+    print_string(file);
+    print_string(":");
+    print_integer(line); // Using your custom dynamic integer printer!
+    print_string("\n\n");
+
+    print_string("System execution halted to prevent data corruption.");
+
+    // 3. CRITICAL INTERRUPT: Force the CPU to freeze forever
+    while (1) {
+        // Complete lockdown
+    }
+}
+
+/**
+ * The Assert Macro Layout
+ * If 'cond' is false, it triggers a kernel panic immediately.
+ * #cond turns the code logic statement into a printable text string.
+ */
+#define ASSERT(cond) \
+    if (!(cond)) { \
+        kernel_panic(#cond, __FILE__, __LINE__); \
+    }
+
+/**
  * The main entry point of your operating system engine
  */
 void kernel_main() {
     clear_screen();
 
-    print_string("Arun OS Math Engine Verification:\n");
-    print_string("---------------------------------\n");
+    print_string("Booting system managers...\n");
 
-    int system_code = 404;
-    int test_negative = -1234;
+    // Simulate checking a hardware condition
+    int system_memory_total = 512; 
+    
+    print_string("Validating minimum hardware requirements...\n");
+    
+    // TEST PASS: This condition is true, nothing will happen!
+    ASSERT(system_memory_total > 256); 
+    print_string("Hardware check 1 passed.\n");
 
-    int sum = system_code + test_negative;
+    // TEST FAIL: We will trigger a failure by stating memory must be 1024
+    ASSERT(system_memory_total == 1024); 
 
-    print_string("System Code Dynamic Variable: ");
-    print_integer(system_code);      // Testing positive int
-    print_string("\n");
-
-    print_string("Hardware Temperature Offset: ");
-    print_integer(test_negative);    // Testing negative int
-    print_string("\n");
-
-    print_string("Sum of these two values: ");
-    print_integer(sum);
-    print_string("\n");
+    // This line will NEVER run because the assert will trip and freeze the CPU!
+    print_string("This sentence will never be seen."); 
 
     while (1) {}
 }
+
 
 
